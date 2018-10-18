@@ -1,3 +1,4 @@
+
 //-----------------------------------------------------------------------------
 //
 //	Node.cpp
@@ -482,26 +483,26 @@ void Node::AdvanceQueries
 			{
 				// Get the version information (if the device supports COMMAND_CLASS_VERSION
 				Log::Write( LogLevel_Detail, m_nodeId, "QueryStage_Versions" );
-				Version* vcc = static_cast<Version*>( GetCommandClass( Version::StaticGetCommandClassId() ) );
-				if( vcc )
-				{
-					Log::Write(LogLevel_Info, m_nodeId, "Requesting Versions");
-					for( map<uint8,CommandClass*>::const_iterator it = m_commandClassMap.begin(); it != m_commandClassMap.end(); ++it )
-					{
-						CommandClass* cc = it->second;
-						Log::Write(LogLevel_Info, m_nodeId, "Requesting Versions for %s", cc->GetCommandClassName().c_str());
-
-						if( cc->GetMaxVersion() > 1 )
-						{
-							Log::Write(LogLevel_Info, m_nodeId, "	ok");
-							// Get the version for each supported command class that
-							// we have implemented at greater than version one.
-							m_queryPending |= vcc->RequestCommandClassVersion( it->second );
-						}
-					}
-					addQSC = m_queryPending;
-				}
-				// advance to Instances stage when finished
+				// Version* vcc = static_cast<Version*>( GetCommandClass( Version::StaticGetCommandClassId() ) );
+				// if( vcc )
+				// {
+				// 	Log::Write(LogLevel_Info, m_nodeId, "Requesting Versions");
+				// 	for( map<uint8,CommandClass*>::const_iterator it = m_commandClassMap.begin(); it != m_commandClassMap.end(); ++it )
+				// 	{
+				// 		CommandClass* cc = it->second;
+				// 		Log::Write(LogLevel_Info, m_nodeId, "Requesting Versions for %s", cc->GetCommandClassName().c_str());
+				//
+				// 		if( cc->GetMaxVersion() > 1 )
+				// 		{
+				// 			Log::Write(LogLevel_Info, m_nodeId, "	ok");
+				// 			// Get the version for each supported command class that
+				// 			// we have implemented at greater than version one.
+				// 			m_queryPending |= vcc->RequestCommandClassVersion( it->second );
+				// 		}
+				// 	}
+				// 	addQSC = m_queryPending;
+				// }
+				// // advance to Instances stage when finished
 				if( !m_queryPending )
 				{
 					m_queryStage = QueryStage_Instances;
@@ -511,15 +512,15 @@ void Node::AdvanceQueries
 			}
 			case QueryStage_Instances:
 			{
-				// if the device at this node supports multiple instances, obtain a list of these instances
+				// // if the device at this node supports multiple instances, obtain a list of these instances
 				Log::Write( LogLevel_Detail, m_nodeId, "QueryStage_Instances" );
-				MultiInstance* micc = static_cast<MultiInstance*>( GetCommandClass( MultiInstance::StaticGetCommandClassId() ) );
-				if( micc )
-				{
-					m_queryPending = micc->RequestInstances();
-					addQSC = m_queryPending;
-				}
-
+				// MultiInstance* micc = static_cast<MultiInstance*>( GetCommandClass( MultiInstance::StaticGetCommandClassId() ) );
+				// if( micc )
+				// {
+				// 	m_queryPending = micc->RequestInstances();
+				// 	addQSC = m_queryPending;
+				// }
+				//
 				// when done, advance to the Static stage
 				if( !m_queryPending )
 				{
@@ -535,21 +536,21 @@ void Node::AdvanceQueries
 			}
 			case QueryStage_Static:
 			{
-				// Request any other static values associated with each command class supported by this node
-				// examples are supported thermostat operating modes, setpoints and fan modes
+				// // Request any other static values associated with each command class supported by this node
+				// // examples are supported thermostat operating modes, setpoints and fan modes
 				Log::Write( LogLevel_Detail, m_nodeId, "QueryStage_Static" );
-				for( map<uint8,CommandClass*>::const_iterator it = m_commandClassMap.begin(); it != m_commandClassMap.end(); ++it )
-				{
-					if( !it->second->IsAfterMark() )
-					{
-						m_queryPending |= it->second->RequestStateForAllInstances( CommandClass::RequestFlag_Static, Driver::MsgQueue_Query );
-					} else {
-						/* Controlling CC's might still need to retrieve some info */
-						m_queryPending |= it->second->RequestStateForAllInstances( CommandClass::RequestFlag_AfterMark, Driver::MsgQueue_Query );
-					}
-				}
-				addQSC = m_queryPending;
-
+				// for( map<uint8,CommandClass*>::const_iterator it = m_commandClassMap.begin(); it != m_commandClassMap.end(); ++it )
+				// {
+				// 	if( !it->second->IsAfterMark() )
+				// 	{
+				// 		m_queryPending |= it->second->RequestStateForAllInstances( CommandClass::RequestFlag_Static, Driver::MsgQueue_Query );
+				// 	} else {
+				// 		/* Controlling CC's might still need to retrieve some info */
+				// 		m_queryPending |= it->second->RequestStateForAllInstances( CommandClass::RequestFlag_AfterMark, Driver::MsgQueue_Query );
+				// 	}
+				// }
+				// addQSC = m_queryPending;
+				//
 				if( !m_queryPending )
 				{
 					// when all (if any) static information has been retrieved, advance to the Associations stage
@@ -589,7 +590,7 @@ void Node::AdvanceQueries
 			}
 			case QueryStage_Associations:
 			{
-				// if this device supports COMMAND_CLASS_ASSOCIATION, determine to which groups this node belong
+				// // if this device supports COMMAND_CLASS_ASSOCIATION, determine to which groups this node belong
 				Log::Write( LogLevel_Detail, m_nodeId, "QueryStage_Associations" );
 				MultiChannelAssociation* macc = static_cast<MultiChannelAssociation*>( GetCommandClass( MultiChannelAssociation::StaticGetCommandClassId() ) );
 				if( macc )
@@ -618,7 +619,7 @@ void Node::AdvanceQueries
 			}
 			case QueryStage_Neighbors:
 			{
-				// retrieves this node's neighbors and stores the neighbor bitmap in the node object
+				// // retrieves this node's neighbors and stores the neighbor bitmap in the node object
 				Log::Write( LogLevel_Detail, m_nodeId, "QueryStage_Neighbors" );
 				GetDriver()->RequestNodeNeighbors( m_nodeId, 0 );
 				m_queryPending = true;
@@ -627,8 +628,8 @@ void Node::AdvanceQueries
 			}
 			case QueryStage_Session:
 			{
-				// Request the session values from the command classes in turn
-				// examples of Session information are: current thermostat setpoints, node names and climate control schedules
+				// // Request the session values from the command classes in turn
+				// // examples of Session information are: current thermostat setpoints, node names and climate control schedules
 				Log::Write( LogLevel_Detail, m_nodeId, "QueryStage_Session" );
 				for( map<uint8,CommandClass*>::const_iterator it = m_commandClassMap.begin(); it != m_commandClassMap.end(); ++it )
 				{
@@ -649,30 +650,32 @@ void Node::AdvanceQueries
 			{
 				// Request the dynamic values from the node, that can change at any time
 				// Examples include on/off state, heating mode, temperature, etc.
-				Log::Write( LogLevel_Detail, m_nodeId, "QueryStage_Dynamic" );
-				m_queryPending = RequestDynamicValues();
-				addQSC = m_queryPending;
+				Log::Write( LogLevel_Detail, m_nodeId, "QueryStage_Dynamic SKIPPING" );
+				// m_queryPending = RequestDynamicValues();
+				// addQSC = m_queryPending;
 
-				if( !m_queryPending )
-				{
-					m_queryStage = QueryStage_Configuration;
-					m_queryRetries = 0;
-				}
+				// if( !m_queryPending )
+				// {
+				// 	m_queryStage = QueryStage_Configuration;
+				// 	m_queryRetries = 0;
+				// }
+				m_queryStage = QueryStage_Configuration;
+				m_queryRetries = 0;
 				break;
 			}
 			case QueryStage_Configuration:
 			{
-				// Request the configurable parameter values from the node.
-				Log::Write( LogLevel_Detail, m_nodeId, "QueryStage_Configuration" );
-				if( m_queryConfiguration )
-				{
-					if( RequestAllConfigParams( 0 ) )
-					{
-						m_queryPending = true;
-						addQSC = true;
-					}
-					m_queryConfiguration = false;
-				}
+				// // Request the configurable parameter values from the node.
+				// Log::Write( LogLevel_Detail, m_nodeId, "QueryStage_Configuration" );
+				// if( m_queryConfiguration )
+				// {
+				// 	if( RequestAllConfigParams( 0 ) )
+				// 	{
+				// 		m_queryPending = true;
+				// 		addQSC = true;
+				// 	}
+				// 	m_queryConfiguration = false;
+				// }
 				if( !m_queryPending )
 				{
 					m_queryStage = QueryStage_Complete;
